@@ -34,6 +34,12 @@
         $l("section").off("click", listendur);
         console.log("success");
         console.log("Third packet of functions");
+        var objA = {a: 'a', b: 'a', c: 'a'};
+        var objB = {b: 'b', c: 'b'};
+        var objC = {c: 'c'};
+        console.log($l);
+        var extended = $l.extend(objA, objB, objC);
+        console.log(extended);
       });
     </script>
   </head>

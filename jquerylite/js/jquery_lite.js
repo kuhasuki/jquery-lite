@@ -1,7 +1,8 @@
 (function() {
   'use strict';
   var functionsQueue = [];
-  function $l(element){
+
+  var $l = function (element){
     var nodeArray = [];
     if (element instanceof(HTMLElement)) {
       nodeArray.push(element);
@@ -14,7 +15,56 @@
       }
     }
     return new DOMNodeCollection(nodeArray);
-  }
+  };
+
+  $l.extend = function () {
+    var masterObject = {};
+    [].slice.call(arguments).forEach(function(objArg){
+      for (var key in objArg) {
+         if (objArg.hasOwnProperty(key)) {
+          masterObject[key] = objArg[key];
+        }
+      }
+    });
+    return masterObject;
+  };
+
+  var toQueryString = function(obj){
+   var result = "";
+   for(var prop in obj){
+     if (obj.hasOwnProperty(prop)){
+       result += prop + "=" + obj[prop] + "&";
+     }
+   }
+   return result.substring(0, result.length - 1);
+  };
+  
+  $l.ajax = function(options){
+    var request = new XMLHttpRequest();
+    $l.extend(options, {
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      method: "GET",
+      url: "",
+      success: function(){},
+      error: function(){},
+      data: {},
+    });
+
+    if (options.method.toUpperCase() === "GET"){
+      options.url += "?" + toQueryString(options.data);
+    }
+
+    request.open(options.method, options.url, true);
+    request.onload = function (e) {
+      if (request.status === 200) {
+        options.success(request.response);
+      } else {
+        options.error(request.response);
+      }
+    };
+
+    request.send(JSON.stringify(options.data));
+  };
 
   document.addEventListener('DOMContentLoaded', function () {
     functionsQueue.forEach(function(func){
@@ -145,5 +195,7 @@
       el.removeEventListener(eventType, callback);
     });
   };
+
+
   window.$l = $l;
 }());
